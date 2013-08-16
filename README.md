@@ -20,8 +20,20 @@ A demonstration application was developed while writing this paper. The applicat
 The development environment is a Mac running Xamarin Studio. Development could also be performed in Visual Studio with Xamarin's Business or Enterprise products, using a Mac as a build agent.
 
 
+## Development support in Xamarin Studio
 
-## Device-specific UI junction points
+Xamarin Studio is a fork of MonoDevelop and as such anything that works in MonoDevelop _should_ (eventually) work in Xamarin Studio.
+
+### NuGet
+NuGet support can be added to Xamarin Studio by following the instructions at <https://github.com/mrward/monodevelop-nuget-addin>.
+
+screenshot..
+
+## Architectural decisions
+
+## Cross-device features
+
+### Device-specific UI junction points
 
 Some user interface functions are only supported on one device idiom. For example, the iPad supports split views (master/detail views) and pop-over controllers, which are not supported on the smaller iPhone's screen. Conversely, the iPhone supports a native numeric keypad while the iPad's equivalent is a full width keyboard with 0-9 along the top row.
 
@@ -58,7 +70,7 @@ The `IsRetina` flag is usually used to pick higher resolution images for Retina 
 Typically the junction points within a view controller should be as late as possible and the junction point that determine an application's views should be made as early as possible. The bulk of the application logic should avoid junction points and be agnostic of the device that the application is running on.
 
 
-### Functionality junction points
+#### Functionality junction points
 
 The iPhone does not support pop-overs, which are views that 'pop over' containing views. An example of a pop-over is the status composition view in Facebook's app:
 
@@ -156,8 +168,20 @@ Note that this structure means that when the application is running on an iPhone
 
 This approach simplifies the consuming code so that is isn't concerned with how the camera feature is surfaced in the application. The junction points are confined to the `CameraFeature` class and the parent view controller just exposes the feature via the button on the navigation bar.
 
-### Application event structure junction points
+#### Application event structure junction points
 
+
+## Development notes
+
+Following are notes made regarding the development of the sample application.
+
+### Application layout
+
+I want to use a tabbed interface to support file management and future features. When selecting a file to view, the interface will change to the contents of the file itself. On the iPad, a split view will be used allowing file selection and viewing. Inspiration is from the official Dropbox app for both iPhone and iPad.
+
+### First steps
+
+I'm going to start by setting up the first two screens - a list of files and the contents of the selected file. I'll start by getting the iPhone screens working then move to iPad.
 
 
 
