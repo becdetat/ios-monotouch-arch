@@ -25,9 +25,10 @@ The development environment is a Mac running Xamarin Studio. Development could a
 Xamarin Studio is a fork of MonoDevelop and as such anything that works in MonoDevelop _should_ (eventually) work in Xamarin Studio.
 
 ### NuGet
-NuGet support can be added to Xamarin Studio by following the instructions at <https://github.com/mrward/monodevelop-nuget-addin>.
+NuGet support can be added to Xamarin Studio by following the instructions at <https://github.com/mrward/monodevelop-nuget-addin>. Once the NuGet package manager is installed packages can be installed by right-clicking or control-clicking a project's References folder.
 
-screenshot..
+![xamarin-manage-nuget-packages](images/xamarin-manage-nuget-packages.png)
+
 
 ## Architectural decisions
 
@@ -183,5 +184,16 @@ I want to use a tabbed interface to support file management and future features.
 
 I'm going to start by setting up the first two screens - a list of files and the contents of the selected file. I'll start by getting the iPhone screens working then move to iPad.
 
+#### Frameworks and tests
+Xamarin Studio has NuGet support (in the alpha and beta channels at the moment and it has be installed manually) so I'm going to drop in my favourite test libraries:
 
+- [NUnit](http://www.nunit.org/),
+- [Shouldly](http://shouldly.github.io/) and
+- [NSubstitute](http://nsubstitute.github.io/)
+
+Xamarin Studio threw an internal exception when installing Shouldly but everything worked.
+
+I also set up `control-u, l` to run all unit tests (a'la Resharper):
+
+![set-unit-test-shortcut](/images/set-unit-test-shortcut.png)
 
