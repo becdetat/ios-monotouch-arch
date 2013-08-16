@@ -8,18 +8,22 @@ iOS development presents several challenges to developers including screen manag
 
 This paper will show how to accommodate these requirements while maintaining a clean and extensible architecture.
 
+
 ## Background
 
-I was involved in development on an existing MonoTouch application designed for the iPhone, adding functionality that would be primarily be used on the iPad but with a requirement to continue iPhone support. The application was a line of business app used by field staff to capture and transmit data to the home server. Adding this functionality presented some interesting challenges.
+I was involved in extending an existing MonoTouch application designed for the iPhone, adding functionality that would be primarily be used on the iPad but with a requirement to continue iPhone support. The application was a line of business app used by field staff to capture and transmit data to the home server. Adding this functionality presented some interesting challenges.
 
+### Demonstration application
+A demonstration application was developed while writing this paper. The application, Cloaked Wookie, is a simple guitar tabulature reader with Dropbox integration. The source code is available on Github at <https://github.com/belfryimages/cloaked-wookie>.
 
-## Development environment
+### Development environment
+The development environment is a Mac running Xamarin Studio. Development could also be performed in Visual Studio with Xamarin's Business or Enterprise products, using a Mac as a build agent.
 
 
 
 ## Device-specific UI junction points
 
-Some user interface functions are only supported on one device idiom. For example, the iPad supports split views (master/detail views) and pop-over controllers, which are not supported on the smaller iPhone's screen. Conversely, the iPhone supports a native numeric keypad while the iPad's equivalent is a full width keyboard with 0-9 alone the top row.
+Some user interface functions are only supported on one device idiom. For example, the iPad supports split views (master/detail views) and pop-over controllers, which are not supported on the smaller iPhone's screen. Conversely, the iPhone supports a native numeric keypad while the iPad's equivalent is a full width keyboard with 0-9 along the top row.
 
 
 **TODO should actually just use a DeviceIdiomProvider**
