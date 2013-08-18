@@ -20,7 +20,7 @@ A demonstration application was developed while writing this paper. The applicat
 The development environment is a Mac running Xamarin Studio. Development could also be performed in Visual Studio with Xamarin's Business or Enterprise products, using a Mac as a build agent.
 
 
-## Development support in Xamarin Studio
+## Developer support in Xamarin Studio
 
 Xamarin Studio is a fork of MonoDevelop and as such anything that works in MonoDevelop _should_ (eventually) work in Xamarin Studio.
 
@@ -31,6 +31,48 @@ NuGet support can be added to Xamarin Studio by following the instructions at <h
 
 
 ## Architectural decisions
+
+### Domain events
+Even a simple application can quickly become complex and littered with application logic as features are added. Events may be bubbled up through various classes and unclear object ownership and lifetimes result in memory leaks and exceptions that are difficult to reproduce, trace and resolve.
+
+Domain events as explained by [Martin Fowler](http://martinfowler.com/eaaDev/DomainEvent.html) and as implemented by [Udi Dahan](http://www.udidahan.com/2009/06/14/domain-events-salvation/) provide a way of separating out application event logic from UI logic. The domain event handlers have clear responsibilities in directing the flow of the application while the view controllers become leaner and focussed on the user's experience.
+
+### Inversion of Control / Dependency Injection
+The two terms are not interchangable but as DI tends to mature into IoC the distinction is irrelevant. An IoC container doesn't have to be decided on immediately but any non-trivial application will be designed for separation of concerns and will probably benefit from an IoC container at some point.
+
+**Discuss IoC containers in Monotouch**
+- can't use autofac, why? reflection...
+- TinyIoC is an easy choice, works for most cases
+- lazy factories have to be declared up front
+- prefer explicit factory model:
+
+	class Foo {
+		readonly IDependency _dependency;
+		readonly string _value;
+		
+		Foo(IDependency dependency, string value) {
+			_dependency = dependency;
+			_value = value;
+		}
+		
+		public class Factory {
+			public Factory(IDependency dependency) {
+				_dependency = dependency;
+			}
+			
+			public Foo Build(string value) {
+				return new Foo(_dependency, value);
+			}
+		}
+	}
+
+	// using container to resolve a Foo.Factory and build a Foo:
+	var factory = container.Resolve<Foo.Factory>();
+	var foo = factory.Build("value");
+
+
+## Bootstrapping the application
+While the entry point is via the C# standard `Main()` function, all that does is provide the runtime with the name of the class that implements the `UIApplicationDelegate` for the application. By default this is the `AppDelegate` class and it is here that the application is configured and launched. This includes configuring the IoC container, resolving a root view controller, and assigning it to `window.RootViewController`.
 
 ## Cross-device features
 
@@ -185,7 +227,7 @@ I want to use a tabbed interface to support file management and future features.
 I'm going to start by setting up the first two screens - a list of files and the contents of the selected file. I'll start by getting the iPhone screens working then move to iPad.
 
 #### Frameworks and tests
-Xamarin Studio has NuGet support (in the alpha and beta channels at the moment and it has be installed manually) so I'm going to drop in my favourite test libraries:
+Xamarin Studio has NuGet support (in alpha and beta channels at the moment and it has be installed manually) so I'm going to drop in my favourite test libraries:
 
 - [NUnit](http://www.nunit.org/),
 - [Shouldly](http://shouldly.github.io/) and
@@ -197,3 +239,27 @@ I also set up `control-u, l` to run all unit tests (a'la Resharper):
 
 ![set-unit-test-shortcut](/images/set-unit-test-shortcut.png)
 
+#### Dependency injection / Inversion of Control
+I didn't decide on an IoC container straight away. I know that it will probably be TinyIoC as it is quite straightforward and I know that it works in Monotouch. I also know I will want to use a simple [domain event pattern](http://martinfowler.com/eaaDev/DomainEvent.html) with events funnelled through a simple in/out bus.
+
+TinyIoC has a companion event aggregator ([TinyMessenger](https://github.com/grumpydev/TinyMessenger/wiki)) however the handlers have to subscribe at the method level, rather than using an interface contract:
+
+	public class UserWantsToTransferMoney : ITinyMessage {
+		public object Sender { get; private set; }
+		
+		public UserWantsToTransferMoney(object sender) {
+			Sender = sender;
+		}
+	}
+	
+	public class TransferMoneyForUser {
+		public void Handle(UserWantsToTransferMoney message) {
+			//...
+		}
+	}
+	
+	// in the IoCModule subclass:
+	var hub = container.Resolve<ITinyMessengerHub>();
+	hub.Subscribe<UserWantsToTransferMoney>(x => container.Resolve<TransferMoneyForUser>().Handle(x));
+
+The difference is "cosmetic" ("syntactic"?) but since I don't need any of the extra features that TinyMessenger includes (required `Sender` property in the message, explicit subscribe/unsubscribe, cancellable messages, error handling) I'll just roll my own trivial aggregator:
